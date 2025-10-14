@@ -1,0 +1,57 @@
+<UserControl x:Class="HitsDownloadManager.Views.DownloadProgressView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <DataGrid ItemsSource="{Binding Downloads}" 
+                  AutoGenerateColumns="False" 
+                  CanUserAddRows="False" 
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  SelectedItem="{Binding SelectedDownload}"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="All">
+            <DataGrid.Columns>
+                <!-- Filename -->
+                <DataGridTextColumn Header="Filename" 
+                                    Binding="{Binding Filename}" 
+                                    Width="2*"/>
+                <!-- Progress with ProgressBar -->
+                <DataGridTemplateColumn Header="Progress" Width="2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <ProgressBar Minimum="0" 
+                                             Maximum="100" 
+                                             Value="{Binding ProgressPercentage}" 
+                                             Height="20"/>
+                                <TextBlock Text="{Binding ProgressPercentage, StringFormat={}{0:0.0}%}" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <!-- Speed -->
+                <DataGridTextColumn Header="Speed" 
+                                    Binding="{Binding Speed}" 
+                                    Width="*"/>
+                <!-- ETA -->
+                <DataGridTextColumn Header="ETA" 
+                                    Binding="{Binding ETA}" 
+                                    Width="*"/>
+                <!-- Segments -->
+                <DataGridTextColumn Header="Segments" 
+                                    Binding="{Binding Segments}" 
+                                    Width="*"/>
+                <!-- Status -->
+                <DataGridTextColumn Header="Status" 
+                                    Binding="{Binding Status}" 
+                                    Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
