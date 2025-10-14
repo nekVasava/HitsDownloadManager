@@ -31,6 +31,7 @@ namespace HitsDownloadManager.DownloadEngine
         public string Url { get; set; }
         public string DestinationPath { get; set; }
         public string Filename { get; set; }
+        public string FileExtension => System.IO.Path.GetExtension(Filename)?.ToUpper().TrimStart('.') ?? "Unknown";
         public long TotalBytes
         {
             get => _totalBytes;
@@ -114,3 +115,4 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
+

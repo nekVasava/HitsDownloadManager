@@ -36,6 +36,8 @@ namespace HitsDownloadManager.WPFApp.ViewModels
         public ICommand ResumeDownloadCommand { get; }
         public ICommand CancelDownloadCommand { get; }
         public ICommand BrowseDirectoryCommand { get; }
+        public ICommand RemoveDownloadCommand { get; }
+        public ICommand ClearCompletedCommand { get; }
         public MainViewModel()
         {
             Downloads = new ObservableCollection<DownloadTask>();
@@ -52,6 +54,8 @@ namespace HitsDownloadManager.WPFApp.ViewModels
             ResumeDownloadCommand = new RelayCommand(ResumeDownload, CanResumeDownload);
             CancelDownloadCommand = new RelayCommand(CancelDownload, CanCancelDownload);
             BrowseDirectoryCommand = new RelayCommand(BrowseDirectory);
+            RemoveDownloadCommand = new RelayCommand(RemoveDownload, CanRemoveDownload);
+            ClearCompletedCommand = new RelayCommand(ClearCompleted);
         }
         private void AddDownload(object parameter)
         {
@@ -145,6 +149,27 @@ namespace HitsDownloadManager.WPFApp.ViewModels
         {
             // Don't show popup for failed - it will auto-retry
         }
+        private void RemoveDownload(object parameter)
+        {
+            if (SelectedDownload != null)
+            {
+                _downloadManager.CancelDownload(SelectedDownload.Id);
+                Application.Current.Dispatcher.Invoke(() => Downloads.Remove(SelectedDownload));
+            }
+        }
+        private bool CanRemoveDownload(object parameter)
+        {
+            return SelectedDownload != null;
+        }
+        private void ClearCompleted(object parameter)
+        {
+            var completed = Downloads.Where(d => d.Status == DownloadStatus.Completed).ToList();
+            foreach (var download in completed)
+            {
+                Downloads.Remove(download);
+            }
+        }
     }
 }
+
 

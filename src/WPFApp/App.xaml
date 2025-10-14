@@ -4,14 +4,14 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <Style TargetType="Button">
-                <Setter Property="Margin" Value="5"/>
-                <Setter Property="Padding" Value="10,5"/>
-            </Style>
-            <Style TargetType="TextBox">
-                <Setter Property="Margin" Value="5"/>
-                <Setter Property="Padding" Value="5"/>
-            </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Base Colors (Light theme) -->
+                <ResourceDictionary Source="/Themes/Colors.xaml"/>
+                <!-- Dark Theme Override (loaded by default) -->
+                <ResourceDictionary Source="/Themes/Colors.Dark.xaml"/>
+                <!-- Control Styles -->
+                <ResourceDictionary Source="/Themes/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
