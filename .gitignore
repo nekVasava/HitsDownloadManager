@@ -1,0 +1,25 @@
+# Build and runtime
+bin/
+obj/
+build/
+*.exe
+*.dll
+*.pdb
+*.zip
+*.msi
+*.msix
+# Logs
+Logs/
+*.log
+# IDE
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+# WPF
+AppData/
+# Config
+*.config.user
+!appsettings.json
+!appsettings.*.json
