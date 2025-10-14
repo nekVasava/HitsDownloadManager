@@ -1,25 +1,21 @@
-# Build and runtime
+# Build outputs
 bin/
 obj/
-build/
-*.exe
 *.dll
+*.exe
 *.pdb
-*.zip
-*.msi
-*.msix
-# Logs
-Logs/
-*.log
-# IDE
-.vs/
-*.suo
+# User-specific files
 *.user
-*.userosscache
-*.sln.docstates
-# WPF
-AppData/
-# Config
-*.config.user
-!appsettings.json
-!appsettings.*.json
+*.suo
+*.cache
+# Visual Studio
+.vs/
+*.vsidx
+*.v2
+# JetBrains Rider
+.idea/
+# Downloads folder (optional - don't commit test downloads)
+Downloads/
+# Temporary files
+*.tmp
+*.log
