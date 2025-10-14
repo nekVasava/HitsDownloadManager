@@ -1,0 +1,9 @@
+{
+  "name": "com.hits.downloadmanager",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://kfjnoobcomimfpkeinppmfhcakjacoin/"
+  ],
+  "path": "D:\\HitsDownloadManager\\src\\NativeMessaging\\HitsDownloadManager.NativeMessaging\\bin\\Debug\\net8.0\\HitsDownloadManager.NativeMessaging.exe",
+  "description": "Hits Download Manager Native Host"
+}

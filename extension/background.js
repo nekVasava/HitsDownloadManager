@@ -5,19 +5,28 @@ chrome.downloads.onCreated.addListener((downloadItem) => {
   chrome.downloads.cancel(downloadItem.id, () => {
     console.log('Download cancelled:', downloadItem.id);
   });
-  // Log the download info (instead of sending to native host for now)
-  console.log('Download info:', {
+  // Send to native host
+  var port = chrome.runtime.connectNative('com.hits.downloadmanager');
+  port.postMessage({
+    action: 'download',
     url: downloadItem.url,
-    filename: downloadItem.filename,
-    referrer: downloadItem.referrer
+    filename: downloadItem.filename || 'download',
+    referrer: downloadItem.referrer || ''
   });
-  // Show notification
-  chrome.notifications.create({
-    type: 'basic',
-    title: 'Hits Download Manager',
-    message: `Download intercepted: ${downloadItem.filename || 'file'}`
-  }, (notificationId) => {
-    console.log('Notification shown:', notificationId);
+  port.onMessage.addListener((response) => {
+    console.log('Native host response:', response);
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'icons/icon48.png',
+      title: 'Hits Download Manager',
+      message: 'Download started: ' + (downloadItem.filename || 'file')
+    });
+  });
+  port.onDisconnect.addListener(() => {
+    console.log('Native host disconnected');
+    if (chrome.runtime.lastError) {
+      console.error('Connection error:', chrome.runtime.lastError.message);
+    }
   });
 });
 // Context menu for links
@@ -34,8 +43,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     console.log('Context menu clicked:', info.linkUrl);
     chrome.notifications.create({
       type: 'basic',
+      iconUrl: 'icons/icon48.png',
       title: 'Hits Download Manager',
-      message: 'Download would start: ' + info.linkUrl.split('/').pop()
+      message: 'Download started'
     });
   }
 });

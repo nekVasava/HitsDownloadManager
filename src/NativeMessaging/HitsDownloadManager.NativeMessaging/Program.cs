@@ -7,8 +7,12 @@ namespace HitsDownloadManager.NativeMessaging
 {
     class Program
     {
+        static Stream stdin;
+        static Stream stdout;
         static void Main(string[] args)
         {
+            stdin = Console.OpenStandardInput();
+            stdout = Console.OpenStandardOutput();
             try
             {
                 Directory.CreateDirectory(Path.Combine(
@@ -30,7 +34,6 @@ namespace HitsDownloadManager.NativeMessaging
         }
         static string ReadMessage()
         {
-            var stdin = Console.OpenStandardInput();
             var lengthBytes = new byte[4];
             var read = stdin.Read(lengthBytes, 0, 4);
             if (read == 0) return null;
@@ -44,7 +47,6 @@ namespace HitsDownloadManager.NativeMessaging
         {
             var bytes = Encoding.UTF8.GetBytes(message);
             var length = BitConverter.GetBytes(bytes.Length);
-            var stdout = Console.OpenStandardOutput();
             stdout.Write(length, 0, 4);
             stdout.Write(bytes, 0, bytes.Length);
             stdout.Flush();
@@ -79,10 +81,10 @@ namespace HitsDownloadManager.NativeMessaging
                         }
                     }
                     LogDownload($"URL: {url}, File: {filename}, Referrer: {referrer}");
-                    return JsonSerializer.Serialize(new 
-                    { 
-                        status = "accepted", 
-                        url, 
+                    return JsonSerializer.Serialize(new
+                    {
+                        status = "accepted",
+                        url,
                         filename,
                         downloadId = Guid.NewGuid().ToString()
                     });
