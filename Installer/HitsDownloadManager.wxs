@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" 
+           Name="HitsDownloadManager" 
+           Language="1033" 
+           Version="1.0.0.0" 
+           Manufacturer="HitsDownloadManager" 
+           UpgradeCode="12345678-1234-1234-1234-123456789012">
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine" 
+             Description="HitsDownloadManager - Advanced Download Manager with Browser Integration"
+             Comments="Infinite auto-retry download manager" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <Feature Id="ProductFeature" Title="HitsDownloadManager" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="BrowserExtension" />
+    </Feature>
+    <!-- Installation directory -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="HitsDownloadManager" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="HitsDownloadManager"/>
+      </Directory>
+    </Directory>
+    <!-- Components -->
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="*">
+        <File Id="HitsDownloadManagerEXE" 
+              Source="$(var.SourceDir)\HitsDownloadManager.exe" 
+              KeyPath="yes" 
+              Checksum="yes" />
+        <!-- Start Menu Shortcut -->
+        <Shortcut Id="StartMenuShortcut" 
+                  Directory="ApplicationProgramsFolder"
+                  Name="HitsDownloadManager"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon.exe"
+                  IconIndex="0"
+                  Advertise="yes" />
+        <!-- Desktop Shortcut -->
+        <Shortcut Id="DesktopShortcut"
+                  Directory="DesktopFolder"
+                  Name="HitsDownloadManager"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon.exe"
+                  IconIndex="0"
+                  Advertise="yes" />
+      </Component>
+      <!-- Native Messaging Host Registry -->
+      <Component Id="NativeMessagingRegistry" Guid="*">
+        <RegistryKey Root="HKLM" 
+                     Key="SOFTWARE\Google\Chrome\NativeMessagingHosts\com.hitsdownloadmanager.native">
+          <RegistryValue Type="string" 
+                         Value="[INSTALLFOLDER]native-host-manifest.json" />
+        </RegistryKey>
+      </Component>
+    </ComponentGroup>
+    <!-- Browser Extension Components -->
+    <ComponentGroup Id="BrowserExtension" Directory="INSTALLFOLDER">
+      <Component Id="ExtensionManifest" Guid="*">
+        <File Id="ManifestJSON" Source="$(var.SourceDir)\BrowserExtension\manifest.json" />
+      </Component>
+      <Component Id="NativeHostManifest" Guid="*">
+        <File Id="NativeHostJSON" Source="$(var.SourceDir)\native-host-manifest.json" />
+      </Component>
+    </ComponentGroup>
+    <!-- Desktop Folder -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+    <!-- Icon -->
+    <Icon Id="AppIcon.exe" SourceFile="$(var.SourceDir)\HitsDownloadManager.exe" />
+    <!-- UI -->
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+  </Product>
+</Wix>

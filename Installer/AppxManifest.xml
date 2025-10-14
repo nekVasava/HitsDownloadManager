@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+  <Identity Name="HitsDownloadManager"
+            Publisher="CN=HitsDownloadManager"
+            Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>HitsDownloadManager</DisplayName>
+    <PublisherDisplayName>HitsDownloadManager</PublisherDisplayName>
+    <Description>Advanced Download Manager with infinite auto-retry and browser integration</Description>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />
+  </Dependencies>
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+  <Applications>
+    <Application Id="HitsDownloadManager" Executable="HitsDownloadManager.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="HitsDownloadManager"
+                          Description="Advanced Download Manager"
+                          BackgroundColor="transparent"
+                          Square150x150Logo="Assets\Square150x150Logo.png"
+                          Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- File Type Association for .hdm download state files -->
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="hdmdownload">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.hdm</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <Capability Name="internetClient" />
+    <Capability Name="internetClientServer" />
+  </Capabilities>
+</Package>
