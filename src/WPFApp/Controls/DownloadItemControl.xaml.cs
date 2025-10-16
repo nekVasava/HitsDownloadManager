@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using HitsDownloadManager.DownloadEngine;
+using System.Diagnostics;
+using System.IO;
 namespace HitsDownloadManager.WPFApp.Controls
 {
     public partial class DownloadItemControl : UserControl
@@ -34,19 +36,45 @@ namespace HitsDownloadManager.WPFApp.Controls
                     btnPause.Visibility = Visibility.Visible;
                     btnResume.Visibility = Visibility.Collapsed;
                     btnCancel.Visibility = Visibility.Visible;
+                    txtCompleted.Visibility = Visibility.Collapsed;
+                    txtFailed.Visibility = Visibility.Collapsed;
+                    btnShowInFolder.Visibility = Visibility.Collapsed;
                     break;
                 case DownloadStatus.Paused:
                     btnPause.Visibility = Visibility.Collapsed;
                     btnResume.Visibility = Visibility.Visible;
                     btnCancel.Visibility = Visibility.Visible;
+                    txtCompleted.Visibility = Visibility.Collapsed;
+                    txtFailed.Visibility = Visibility.Collapsed;
+                    btnShowInFolder.Visibility = Visibility.Collapsed;
                     break;
                 case DownloadStatus.Completed:
+                    btnPause.Visibility = Visibility.Collapsed;
+                    btnResume.Visibility = Visibility.Collapsed;
+                    btnCancel.Visibility = Visibility.Collapsed;
+                    txtCompleted.Visibility = Visibility.Visible;
+                    txtFailed.Visibility = Visibility.Collapsed;
+                    btnShowInFolder.Visibility = Visibility.Visible;
+                    txtSpeed.Text = "Completed";
+                    txtTimeRemaining.Text = "";
+                    break;
                 case DownloadStatus.Failed:
-                case DownloadStatus.Cancelled:
-                    // Keep Resume and Cancel visible for failed/paused downloads
                     btnPause.Visibility = Visibility.Collapsed;
                     btnResume.Visibility = Visibility.Collapsed;
                     btnCancel.Visibility = Visibility.Visible;
+                    txtCompleted.Visibility = Visibility.Collapsed;
+                    txtFailed.Visibility = Visibility.Visible;
+                    btnShowInFolder.Visibility = Visibility.Collapsed;
+                    txtSpeed.Text = "Failed";
+                    txtTimeRemaining.Text = "";
+                    break;
+                case DownloadStatus.Cancelled:
+                    btnPause.Visibility = Visibility.Collapsed;
+                    btnResume.Visibility = Visibility.Collapsed;
+                    btnCancel.Visibility = Visibility.Collapsed;
+                    txtCompleted.Visibility = Visibility.Collapsed;
+                    txtFailed.Visibility = Visibility.Collapsed;
+                    btnShowInFolder.Visibility = Visibility.Collapsed;
                     break;
             }
         }
@@ -66,7 +94,17 @@ namespace HitsDownloadManager.WPFApp.Controls
                 parent.Children.Remove(this);
             }
         }
+        private void BtnShowInFolder_Click(object sender, RoutedEventArgs e)
+        {
+            // DestinationPath already contains the full path with filename
+            if (File.Exists(_task.DestinationPath))
+            {
+                Process.Start("explorer.exe", $"/select,\"{_task.DestinationPath}\"");
+            }
+            else
+            {
+                MessageBox.Show($"File not found at: {_task.DestinationPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
-
-

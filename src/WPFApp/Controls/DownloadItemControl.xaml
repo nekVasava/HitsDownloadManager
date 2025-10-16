@@ -20,6 +20,9 @@
                     <TextBlock x:Name="txtUrl" Text="https://example.com/file.zip" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock x:Name="txtCompleted" Text="✓ Completed" FontSize="13" FontWeight="SemiBold" Foreground="#4CAF50" VerticalAlignment="Center" Visibility="Collapsed" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="txtFailed" Text="✗ Failed" FontSize="13" FontWeight="SemiBold" Foreground="#F44336" VerticalAlignment="Center" Visibility="Collapsed" Margin="0,0,12,0"/>
+                    <Button x:Name="btnShowInFolder" Content="Show in Folder" Width="120" Height="32" Style="{DynamicResource PrimaryButtonStyle}" FontSize="13" Click="BtnShowInFolder_Click" Visibility="Collapsed" Margin="0,0,8,0"/>
                     <Button x:Name="btnPause" Content="Pause" Width="70" Height="32" Style="{DynamicResource PrimaryButtonStyle}" FontSize="13" Click="BtnPause_Click" Margin="0,0,8,0"/>
                     <Button x:Name="btnResume" Content="Resume" Width="70" Height="32" Style="{DynamicResource PrimaryButtonStyle}" FontSize="13" Click="BtnResume_Click" Visibility="Collapsed" Margin="0,0,8,0"/>
                     <Button x:Name="btnCancel" Content="Cancel" Width="70" Height="32" Style="{DynamicResource PrimaryButtonStyle}" FontSize="13" Click="BtnCancel_Click" Background="#C62828" BorderBrush="#C62828"/>
@@ -42,5 +45,3 @@
         </Grid>
     </Border>
 </UserControl>
-
-
