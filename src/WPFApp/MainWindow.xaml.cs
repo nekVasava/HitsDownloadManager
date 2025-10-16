@@ -108,6 +108,16 @@ namespace HitsDownloadManager.WPFApp
                 return;
             }
             string filename = Path.GetFileName(uri.LocalPath);
+            // Handle duplicate filenames
+            string originalFilename = filename;
+            string nameWithoutExt = Path.GetFileNameWithoutExtension(filename);
+            string extension = Path.GetExtension(filename);
+            int counter = 1;
+            while (File.Exists(Path.Combine(_downloadFolder, filename)))
+            {
+                filename = $"{nameWithoutExt}({counter}){extension}";
+                counter++;
+            }
             if (string.IsNullOrWhiteSpace(filename))
             {
                 filename = string.Format("download_{0}", DateTime.Now.Ticks);
@@ -302,4 +312,5 @@ namespace HitsDownloadManager.WPFApp
         #endregion
     }
 }
+
 
