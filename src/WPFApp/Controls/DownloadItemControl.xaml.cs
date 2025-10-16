@@ -33,17 +33,20 @@ namespace HitsDownloadManager.WPFApp.Controls
                 case DownloadStatus.Downloading:
                     btnPause.Visibility = Visibility.Visible;
                     btnResume.Visibility = Visibility.Collapsed;
+                    btnCancel.Visibility = Visibility.Visible;
                     break;
                 case DownloadStatus.Paused:
                     btnPause.Visibility = Visibility.Collapsed;
                     btnResume.Visibility = Visibility.Visible;
+                    btnCancel.Visibility = Visibility.Visible;
                     break;
                 case DownloadStatus.Completed:
                 case DownloadStatus.Failed:
                 case DownloadStatus.Cancelled:
+                    // Keep Resume and Cancel visible for failed/paused downloads
                     btnPause.Visibility = Visibility.Collapsed;
                     btnResume.Visibility = Visibility.Collapsed;
-                    btnCancel.Visibility = Visibility.Collapsed;
+                    btnCancel.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -65,3 +68,5 @@ namespace HitsDownloadManager.WPFApp.Controls
         }
     }
 }
+
+
