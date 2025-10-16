@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -18,7 +19,8 @@ namespace HitsDownloadManager.WPFApp.ViewModels
             set
             {
                 SetProperty(ref _selectedDownload, value);
-                CommandManager.InvalidateRequerySuggested(); // Force button refresh
+                CommandManager.InvalidateRequerySuggested();
+                UpdatePauseResumeButtonText(); // Force button refresh
             }
         }
         public string NewDownloadUrl
@@ -31,6 +33,13 @@ namespace HitsDownloadManager.WPFApp.ViewModels
             get => _downloadDirectory;
             set => SetProperty(ref _downloadDirectory, value);
         }
+                private string _pauseResumeButtonText = "⏸ Pause";
+        public string PauseResumeButtonText
+        {
+            get => _pauseResumeButtonText;
+            set => SetProperty(ref _pauseResumeButtonText, value);
+        }
+
         public ICommand AddDownloadCommand { get; }
         public ICommand PauseDownloadCommand { get; }
         public ICommand ResumeDownloadCommand { get; }
@@ -67,7 +76,12 @@ namespace HitsDownloadManager.WPFApp.ViewModels
                 var filename = System.IO.Path.GetFileName(uri.LocalPath);
                 if (string.IsNullOrEmpty(filename))
                     filename = "download_" + System.DateTime.Now.Ticks;
+                
                 var destinationPath = System.IO.Path.Combine(DownloadDirectory, filename);
+                
+                // Generate unique filename if duplicate exists
+                destinationPath = GenerateUniqueFilename(destinationPath);
+                
                 var downloadId = _downloadManager.AddDownload(NewDownloadUrl, destinationPath);
                 if (downloadId != null)
                 {
@@ -86,6 +100,47 @@ namespace HitsDownloadManager.WPFApp.ViewModels
             return !string.IsNullOrWhiteSpace(NewDownloadUrl) && 
                    System.Uri.TryCreate(NewDownloadUrl, System.UriKind.Absolute, out _);
         }
+                private void TogglePauseResume(object parameter)
+        {
+            if (SelectedDownload == null) return;
+            Console.WriteLine($"[TOGGLE] Current status: {SelectedDownload.Status}");
+            
+            if (SelectedDownload.Status == DownloadStatus.Downloading)
+            {
+                PauseDownload(parameter);
+                PauseResumeButtonText = "▶ Resume";
+            }
+            else if (SelectedDownload.Status == DownloadStatus.Paused)
+            {
+                ResumeDownload(parameter);
+                PauseResumeButtonText = "⏸ Pause";
+            }
+        }
+
+                private void UpdatePauseResumeButtonText()
+        {
+            if (SelectedDownload == null)
+            {
+                PauseResumeButtonText = "⏸ Pause";
+            }
+            else if (SelectedDownload.Status == DownloadStatus.Paused)
+            {
+                PauseResumeButtonText = "▶ Resume";
+            }
+            else
+            {
+                PauseResumeButtonText = "⏸ Pause";
+            }
+        }
+
+        private bool CanTogglePauseResume(object parameter)
+        {
+            return SelectedDownload != null && 
+                   (SelectedDownload.Status == DownloadStatus.Downloading || 
+                    SelectedDownload.Status == DownloadStatus.Paused);
+        }
+
+
         private void PauseDownload(object parameter)
         {
             if (SelectedDownload != null)
@@ -142,7 +197,7 @@ namespace HitsDownloadManager.WPFApp.ViewModels
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                MessageBox.Show($"Download completed: {task.Filename}", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                Console.WriteLine($"[SUCCESS] Download completed: {task.Filename}");
             });
         }
         private void OnDownloadFailed(object sender, DownloadTask task)
@@ -169,7 +224,45 @@ namespace HitsDownloadManager.WPFApp.ViewModels
                 Downloads.Remove(download);
             }
         }
+        private string GenerateUniqueFilename(string originalPath)
+        {
+            string baseFilename = System.IO.Path.GetFileNameWithoutExtension(originalPath);
+            string extension = System.IO.Path.GetExtension(originalPath);
+            string directory = System.IO.Path.GetDirectoryName(originalPath);
+            string uniquePath = originalPath;
+            int counter = 1;
+            
+            while (IsPathInUse(uniquePath))
+            {
+                uniquePath = System.IO.Path.Combine(directory, $"{baseFilename} ({counter}){extension}");
+                counter++;
+            }
+            
+            return uniquePath;
+        }
+
+        private bool IsPathInUse(string path)
+        {
+            bool inDownloads = Downloads.Any(t => 
+                t.DestinationPath.Equals(path, StringComparison.OrdinalIgnoreCase) && 
+                t.Status != DownloadStatus.Completed && 
+                t.Status != DownloadStatus.Failed);
+            
+            bool fileExists = System.IO.File.Exists(path);
+            
+            return inDownloads || fileExists;
+        }
+
     }
 }
+
+
+
+
+
+
+
+
+
 
 

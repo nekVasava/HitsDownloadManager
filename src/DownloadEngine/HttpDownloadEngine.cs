@@ -32,18 +32,33 @@ namespace HitsDownloadManager.DownloadEngine
                     Console.WriteLine($"[DEBUG] Starting download: {task.Url}");
                     task.Status = DownloadStatus.Downloading;
                     progress?.Report(task);
-                    using var request = new HttpRequestMessage(HttpMethod.Get, task.Url);
+                    Console.WriteLine($"[DEBUG] Sending HTTP request...");
+                    HttpResponseMessage response;
                     if (task.DownloadedBytes > 0 && File.Exists(task.DestinationPath))
                     {
+                        var request = new HttpRequestMessage(HttpMethod.Get, task.Url);
                         request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(task.DownloadedBytes, null);
                         Console.WriteLine($"[DEBUG] Resuming from byte: {task.DownloadedBytes}");
+                        response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationTokenSource.Token);
                     }
-                    Console.WriteLine($"[DEBUG] Sending HTTP request...");
-                    using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, _cancellationTokenSource.Token);
-                    Console.WriteLine($"[DEBUG] Response status: {response.StatusCode}");
-                    if (!response.IsSuccessStatusCode)
+                    else
                     {
-                        throw new Exception($"HTTP {(int)response.StatusCode}: {response.StatusCode}");
+                        response = await _httpClient.GetAsync(task.Url, HttpCompletionOption.ResponseHeadersRead, _cancellationTokenSource.Token);
+                    }
+                    Console.WriteLine($"[DEBUG] Response status: {response.StatusCode}");
+                    Console.WriteLine($"[DEBUG] Final URL after redirect: {response.RequestMessage?.RequestUri}");
+                    // Manual redirect handling
+                    if (response.StatusCode == System.Net.HttpStatusCode.Found || response.StatusCode == System.Net.HttpStatusCode.Moved)
+                    {
+                        var redirectUrl = response.Headers.Location;
+                        Console.WriteLine($"[DEBUG] Server returned redirect. Location: {redirectUrl}");
+                        if (redirectUrl != null)
+                        {
+                            var absoluteUrl = redirectUrl.IsAbsoluteUri ? redirectUrl : new Uri(response.RequestMessage.RequestUri, redirectUrl);
+                            Console.WriteLine($"[DEBUG] Resolved absolute URL: {absoluteUrl}");
+                            response = await _httpClient.GetAsync(absoluteUrl, HttpCompletionOption.ResponseHeadersRead, _cancellationTokenSource.Token);
+                            Console.WriteLine($"[DEBUG] Followed redirect. New status: {response.StatusCode}");
+                        }
                     }
                     task.TotalBytes = response.Content.Headers.ContentLength ?? 0;
                     Console.WriteLine($"[DEBUG] Total bytes: {task.TotalBytes}");
@@ -86,6 +101,8 @@ namespace HitsDownloadManager.DownloadEngine
                     task.Status = DownloadStatus.Failed;
                     progress?.Report(task);
                     Console.WriteLine($"[ERROR] Download failed: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Exception type: {ex.GetType().Name}");
+                    Console.WriteLine($"[ERROR] Inner exception: {ex.InnerException?.Message}");
                     Console.WriteLine($"[DEBUG] Retry {retryCount} in {delaySeconds} seconds...");
                     var delay = delaySeconds * Math.Pow(2, Math.Min(retryCount - 1, 5));
                     var jitter = new Random().Next(0, 1000);
@@ -113,3 +130,8 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
+
+
+
+
+
