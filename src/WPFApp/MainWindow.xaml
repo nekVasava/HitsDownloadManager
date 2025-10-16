@@ -6,27 +6,26 @@
         WindowStartupLocation="CenterScreen"
         MinHeight="500" MinWidth="800">
     <Grid>
-        <!-- Theme Toggle Button - Fixed Position Top Right -->
-        <ToggleButton x:Name="ThemeToggle" 
+        <ToggleButton x:Name="ThemeToggle"
                      Style="{DynamicResource ThemeToggleButtonStyle}"
-                     HorizontalAlignment="Right" 
+                     HorizontalAlignment="Right"
                      VerticalAlignment="Top"
                      Margin="0,15,20,0"
                      Panel.ZIndex="999"
                      Checked="ThemeToggle_Checked"
                      Unchecked="ThemeToggle_Unchecked"/>
-        <TabControl Background="{DynamicResource BackgroundBrush}" BorderThickness="0" Margin="0,60,0,0">
+        <TabControl Background="{DynamicResource BackgroundBrush}" BorderThickness="0" Margin="0,60,0,0" x:Name="MainTabControl" SelectionChanged="MainTabControl_SelectionChanged">
             <TabControl.Resources>
                 <Style TargetType="TabItem">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="TabItem">
-                                <Border x:Name="Border" Background="{DynamicResource TabBackgroundBrush}" 
-                                        BorderThickness="0" CornerRadius="8,8,0,0" 
+                                <Border x:Name="Border" Background="{DynamicResource TabBackgroundBrush}"
+                                        BorderThickness="0" CornerRadius="8,8,0,0"
                                         Padding="20,12" Margin="2,0">
-                                    <ContentPresenter x:Name="ContentSite" 
-                                                     ContentSource="Header" 
-                                                     HorizontalAlignment="Center" 
+                                    <ContentPresenter x:Name="ContentSite"
+                                                     ContentSource="Header"
+                                                     HorizontalAlignment="Center"
                                                      VerticalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -46,7 +45,6 @@
                     <Setter Property="FontWeight" Value="Medium"/>
                 </Style>
             </TabControl.Resources>
-            <!-- Active Downloads Tab -->
             <TabItem Header="⬇️ Downloads">
                 <Grid Margin="30" Background="{DynamicResource BackgroundBrush}">
                     <Grid.RowDefinitions>
@@ -54,16 +52,16 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="Active Downloads" 
-                              FontSize="28" 
-                              FontWeight="Bold" 
-                              Foreground="{DynamicResource HeadingBrush}" 
-                              Grid.Row="0" 
+                    <TextBlock Text="Active Downloads"
+                              FontSize="28"
+                              FontWeight="Bold"
+                              Foreground="{DynamicResource HeadingBrush}"
+                              Grid.Row="0"
                               Margin="0,0,0,25"/>
-                    <Border Background="{DynamicResource PanelBrush}" 
-                           CornerRadius="10" 
-                           Padding="20" 
-                           Grid.Row="1" 
+                    <Border Background="{DynamicResource PanelBrush}"
+                           CornerRadius="10"
+                           Padding="20"
+                           Grid.Row="1"
                            Margin="0,0,0,20">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -71,265 +69,196 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Download URL" 
-                                          FontSize="13" 
-                                          Foreground="{DynamicResource SecondaryTextBrush}" 
+                                <TextBlock Text="Download URL"
+                                          FontSize="13"
+                                          Foreground="{DynamicResource SecondaryTextBrush}"
                                           Margin="0,0,0,8"/>
-                                <TextBox x:Name="txtDownloadUrl" 
-                                        Background="{DynamicResource InputBackgroundBrush}" 
-                                        Foreground="{DynamicResource TextBrush}" 
-                                        BorderBrush="{DynamicResource InputBorderBrush}" 
+                                <TextBox x:Name="txtDownloadUrl"
+                                        Background="{DynamicResource InputBackgroundBrush}"
+                                        Foreground="{DynamicResource TextBrush}"
+                                        BorderBrush="{DynamicResource InputBorderBrush}"
                                         BorderThickness="1"
-                                        Padding="12,10" 
+                                        Padding="12,10"
                                         FontSize="14"
-                                        Text="Enter download URL here..."/>
+                                        Text="Enter download URL here..." 
+                                        GotFocus="TxtDownloadUrl_GotFocus" 
+                                        LostFocus="TxtDownloadUrl_LostFocus"/>
                             </StackPanel>
-                            <Button Content="Add Download" 
-                                   Style="{DynamicResource PrimaryButtonStyle}" 
-                                   Grid.Column="1" 
+                            <Button x:Name="btnAddDownload"
+                                   Content="Add Download"
+                                   Style="{DynamicResource PrimaryButtonStyle}"
+                                   Grid.Column="1"
                                    Padding="25,12"
                                    Margin="15,25,0,0"
-                                   FontSize="14"/>
+                                   FontSize="14"
+                                   Click="BtnAddDownload_Click"/>
                         </Grid>
                     </Border>
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                        <StackPanel>
-                            <!-- Sample Download Item -->
-                            <Border Background="{DynamicResource PanelBrush}" 
-                                   CornerRadius="10" 
-                                   Padding="20" 
-                                   Margin="0,0,0,15">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid Grid.Row="0" Margin="0,0,0,12">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="sample-file.zip" 
-                                                  FontSize="15" 
-                                                  FontWeight="SemiBold" 
-                                                  Foreground="{DynamicResource HeadingBrush}" 
-                                                  Grid.Column="0"/>
-                                        <TextBlock Text="125.5 MB" 
-                                                  FontSize="13" 
-                                                  Foreground="{DynamicResource SecondaryTextBrush}" 
-                                                  Grid.Column="1"/>
-                                    </Grid>
-                                    <Grid Grid.Row="1" Margin="0,0,0,12">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <ProgressBar Value="45" 
-                                                    Maximum="100" 
-                                                    Height="8" 
-                                                    Grid.Column="0" 
-                                                    Margin="0,0,15,0"
-                                                    Background="{DynamicResource InputBackgroundBrush}"
-                                                    Foreground="{DynamicResource AccentBrush}"
-                                                    BorderThickness="0"/>
-                                        <TextBlock Text="45%" 
-                                                  FontSize="13" 
-                                                  Foreground="{DynamicResource AccentBrush}" 
-                                                  Grid.Column="1" 
-                                                  VerticalAlignment="Center"
-                                                  FontWeight="SemiBold"/>
-                                    </Grid>
-                                    <StackPanel Orientation="Horizontal" Grid.Row="2">
-                                        <TextBlock Text="Downloading" 
-                                                  FontSize="12" 
-                                                  Foreground="{DynamicResource SecondaryTextBrush}" 
-                                                  VerticalAlignment="Center" 
-                                                  Margin="0,0,15,0"/>
-                                        <TextBlock Text="2.5 MB/s" 
-                                                  FontSize="12" 
-                                                  Foreground="#4CAF50" 
-                                                  VerticalAlignment="Center" 
-                                                  Margin="0,0,25,0"
-                                                  FontWeight="Medium"/>
-                                        <Button Content="⏸️" 
-                                               Style="{DynamicResource IconButtonStyle}" 
-                                               ToolTip="Pause" 
-                                               FontSize="16"
-                                               Margin="0,0,5,0"/>
-                                        <Button Content="❌" 
-                                               Style="{DynamicResource IconButtonStyle}" 
-                                               ToolTip="Cancel" 
-                                               FontSize="16"
-                                               Margin="0,0,5,0"/>
-                                        <Button Content="🗑️" 
-                                               Style="{DynamicResource IconButtonStyle}" 
-                                               ToolTip="Remove" 
-                                               FontSize="16"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </StackPanel>
-                    </ScrollViewer>
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"><StackPanel x:Name="downloadsContainer"></StackPanel></ScrollViewer>
                 </Grid>
             </TabItem>
-            <!-- Settings Tab -->
             <TabItem Header="⚙️ Settings">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="30" MaxWidth="750">
-                        <TextBlock Text="Settings" 
-                                  FontSize="28" 
-                                  FontWeight="Bold" 
-                                  Foreground="{DynamicResource HeadingBrush}" 
+                        <TextBlock Text="Settings"
+                                  FontSize="28"
+                                  FontWeight="Bold"
+                                  Foreground="{DynamicResource HeadingBrush}"
                                   Margin="0,0,0,25"/>
-                        <Border Background="{DynamicResource PanelBrush}" 
-                               CornerRadius="10" 
-                               Padding="25" 
+                        <Border Background="{DynamicResource PanelBrush}"
+                               CornerRadius="10"
+                               Padding="25"
                                Margin="0,0,0,20">
                             <StackPanel>
-                                <TextBlock Text="Download Folder" 
-                                          FontSize="14" 
+                                <TextBlock Text="Download Folder"
+                                          FontSize="14"
                                           FontWeight="Medium"
-                                          Foreground="{DynamicResource HeadingBrush}" 
+                                          Foreground="{DynamicResource HeadingBrush}"
                                           Margin="0,0,0,10"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="txtDownloadFolder" 
-                                            Text="C:\Downloads" 
-                                            Background="{DynamicResource InputBackgroundBrush}" 
-                                            Foreground="{DynamicResource TextBrush}" 
+                                    <TextBox x:Name="txtDownloadFolder"
+                                            Text="C:\Downloads"
+                                            Background="{DynamicResource InputBackgroundBrush}"
+                                            Foreground="{DynamicResource TextBrush}"
                                             BorderBrush="{DynamicResource InputBorderBrush}"
                                             BorderThickness="1"
                                             Padding="12,10"
                                             FontSize="13"
-                                            Grid.Column="0" 
+                                            Grid.Column="0"
                                             Margin="0,0,10,0"/>
-                                    <Button Content="Browse" 
-                                           Style="{DynamicResource PrimaryButtonStyle}" 
-                                           Grid.Column="1" 
-                                           Padding="20,10"/>
+                                    <Button x:Name="btnBrowseFolder"
+                                           Content="Browse"
+                                           Style="{DynamicResource PrimaryButtonStyle}"
+                                           Grid.Column="1"
+                                           Padding="20,10"
+                                           Click="BtnBrowseFolder_Click"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource PanelBrush}" 
-                               CornerRadius="10" 
-                               Padding="25" 
+                        <Border Background="{DynamicResource PanelBrush}"
+                               CornerRadius="10"
+                               Padding="25"
                                Margin="0,0,0,20">
                             <StackPanel>
-                                <TextBlock Text="Concurrent Downloads" 
-                                          FontSize="14" 
+                                <TextBlock Text="Concurrent Downloads"
+                                          FontSize="14"
                                           FontWeight="Medium"
-                                          Foreground="{DynamicResource HeadingBrush}" 
+                                          Foreground="{DynamicResource HeadingBrush}"
                                           Margin="0,0,0,10"/>
-                                <TextBox x:Name="txtConcurrentLimit" 
-                                        Text="3" 
-                                        Background="{DynamicResource InputBackgroundBrush}" 
-                                        Foreground="{DynamicResource TextBrush}" 
+                                <TextBox x:Name="txtConcurrentLimit"
+                                        Text="3"
+                                        Background="{DynamicResource InputBackgroundBrush}"
+                                        Foreground="{DynamicResource TextBrush}"
                                         BorderBrush="{DynamicResource InputBorderBrush}"
                                         BorderThickness="1"
                                         Padding="12,10"
                                         FontSize="13"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource PanelBrush}" 
-                               CornerRadius="10" 
-                               Padding="25" 
+                        <Border Background="{DynamicResource PanelBrush}"
+                               CornerRadius="10"
+                               Padding="25"
                                Margin="0,0,0,20">
                             <StackPanel>
-                                <TextBlock Text="Speed Limit (KB/s)" 
-                                          FontSize="14" 
+                                <TextBlock Text="Speed Limit (KB/s)"
+                                          FontSize="14"
                                           FontWeight="Medium"
-                                          Foreground="{DynamicResource HeadingBrush}" 
+                                          Foreground="{DynamicResource HeadingBrush}"
                                           Margin="0,0,0,5"/>
-                                <TextBlock Text="0 = unlimited" 
-                                          FontSize="12" 
-                                          Foreground="{DynamicResource SecondaryTextBrush}" 
+                                <TextBlock Text="0 = unlimited"
+                                          FontSize="12"
+                                          Foreground="{DynamicResource SecondaryTextBrush}"
                                           Margin="0,0,0,10"/>
-                                <TextBox x:Name="txtSpeedLimit" 
-                                        Text="0" 
-                                        Background="{DynamicResource InputBackgroundBrush}" 
-                                        Foreground="{DynamicResource TextBrush}" 
+                                <TextBox x:Name="txtSpeedLimit"
+                                        Text="0"
+                                        Background="{DynamicResource InputBackgroundBrush}"
+                                        Foreground="{DynamicResource TextBrush}"
                                         BorderBrush="{DynamicResource InputBorderBrush}"
                                         BorderThickness="1"
                                         Padding="12,10"
                                         FontSize="13"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource PanelBrush}" 
-                               CornerRadius="10" 
-                               Padding="25" 
+                        <Border Background="{DynamicResource PanelBrush}"
+                               CornerRadius="10"
+                               Padding="25"
                                Margin="0,0,0,20">
                             <StackPanel>
-                                <CheckBox x:Name="chkAutoStart" 
-                                         Content="Auto-start downloads on app launch" 
-                                         Foreground="{DynamicResource TextBrush}" 
-                                         FontSize="13"
-                                         Margin="0,0,0,15"/>
-                                <CheckBox x:Name="chkNotifications" 
-                                         Content="Show notifications when downloads complete" 
+                                <CheckBox x:Name="chkAutoStart"
+                                         Content="Auto-start downloads on app launch"
                                          Foreground="{DynamicResource TextBrush}"
-                                         FontSize="13"/>
+                                         FontSize="13"
+                                         Margin="0,0,0,15"
+                                         Checked="ChkAutoStart_Changed"
+                                         Unchecked="ChkAutoStart_Changed"/>
+                                <CheckBox x:Name="chkNotifications"
+                                         Content="Show notifications when downloads complete"
+                                         Foreground="{DynamicResource TextBrush}"
+                                         FontSize="13"
+                                         Checked="ChkNotifications_Changed"
+                                         Unchecked="ChkNotifications_Changed"/>
                             </StackPanel>
                         </Border>
-                        <Button Content="Save Settings" 
-                               Style="{DynamicResource PrimaryButtonStyle}" 
-                               HorizontalAlignment="Left" 
+                        <Button x:Name="btnSaveSettings"
+                               Content="Save Settings"
+                               Style="{DynamicResource PrimaryButtonStyle}"
+                               HorizontalAlignment="Left"
                                Padding="30,12"
-                               FontSize="14"/>
+                               FontSize="14"
+                               Click="BtnSaveSettings_Click"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
-            <!-- Other tabs -->
             <TabItem Header="📜 History">
                 <Grid Margin="30">
-                    <TextBlock Text="Download History" 
-                              FontSize="28" 
-                              FontWeight="Bold" 
-                              Foreground="{DynamicResource HeadingBrush}" 
+                    <TextBlock Text="Download History"
+                              FontSize="28"
+                              FontWeight="Bold"
+                              Foreground="{DynamicResource HeadingBrush}"
                               VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem Header="⏳ Queue">
                 <Grid Margin="30">
-                    <TextBlock Text="Download Queue" 
-                              FontSize="28" 
-                              FontWeight="Bold" 
-                              Foreground="{DynamicResource HeadingBrush}" 
+                    <TextBlock Text="Download Queue"
+                              FontSize="28"
+                              FontWeight="Bold"
+                              Foreground="{DynamicResource HeadingBrush}"
                               VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem Header="🔧 Advanced">
                 <Grid Margin="30">
-                    <TextBlock Text="Advanced Options" 
-                              FontSize="28" 
-                              FontWeight="Bold" 
-                              Foreground="{DynamicResource HeadingBrush}" 
+                    <TextBlock Text="Advanced Options"
+                              FontSize="28"
+                              FontWeight="Bold"
+                              Foreground="{DynamicResource HeadingBrush}"
                               VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem Header="📊 Stats">
                 <Grid Margin="30">
-                    <TextBlock Text="Statistics" 
-                              FontSize="28" 
-                              FontWeight="Bold" 
-                              Foreground="{DynamicResource HeadingBrush}" 
+                    <TextBlock Text="Statistics"
+                              FontSize="28"
+                              FontWeight="Bold"
+                              Foreground="{DynamicResource HeadingBrush}"
                               VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem Header="ℹ️ About">
                 <Grid Margin="30">
-                    <TextBlock Text="About" 
-                              FontSize="28" 
-                              FontWeight="Bold" 
-                              Foreground="{DynamicResource HeadingBrush}" 
+                    <TextBlock Text="About"
+                              FontSize="28"
+                              FontWeight="Bold"
+                              Foreground="{DynamicResource HeadingBrush}"
                               VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
         </TabControl>
     </Grid>
 </Window>
-
 
