@@ -143,7 +143,7 @@ namespace HitsDownloadManager.WPFApp
                 {
                     // Add UI control for this download
                     var downloadControl = new DownloadItemControl(task, _downloadManager);
-                    downloadsContainer.Children.Insert(0, downloadControl);
+                    activeDownloadsContainer.Children.Insert(0, downloadControl);
                 }
                 // Clear the input
                 txtDownloadUrl.Text = PlaceholderText;
@@ -159,7 +159,30 @@ namespace HitsDownloadManager.WPFApp
         private void DownloadManager_Completed(object sender, DownloadTask task)
         {
             System.Diagnostics.Debug.WriteLine(string.Format("Download completed: {0}", task.Filename));
-            // TODO: Show notification
+            // Move download from Active to Completed section
+            Dispatcher.Invoke(() =>
+            {
+                // Find and remove from active section
+                DownloadItemControl controlToMove = null;
+                foreach (var child in activeDownloadsContainer.Children)
+                {
+                    if (child is DownloadItemControl control && control.Task == task)
+                    {
+                        controlToMove = control;
+                        break;
+                    }
+                }
+                if (controlToMove != null)
+                {
+                    activeDownloadsContainer.Children.Remove(controlToMove);
+                    completedDownloadsContainer.Children.Insert(0, controlToMove);
+                    // Keep only last 5 completed
+                    while (completedDownloadsContainer.Children.Count > 5)
+                    {
+                        completedDownloadsContainer.Children.RemoveAt(completedDownloadsContainer.Children.Count - 1);
+                    }
+                }
+            });
         }
         private void DownloadManager_Failed(object sender, DownloadTask task)
         {

@@ -94,7 +94,7 @@
                                    Click="BtnAddDownload_Click"/>
                         </Grid>
                     </Border>
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"><StackPanel x:Name="downloadsContainer"></StackPanel></ScrollViewer>
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"><StackPanel><!-- Active Downloads Section --><TextBlock Text="Active Downloads" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,15"/><StackPanel x:Name="activeDownloadsContainer" Margin="0,0,0,30"></StackPanel><!-- Recent Completed Section --><TextBlock Text="Recent Completed (Last 5)" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,15"/><StackPanel x:Name="completedDownloadsContainer"></StackPanel></StackPanel></ScrollViewer>
                 </Grid>
             </TabItem>
             <TabItem Header="⚙️ Settings">

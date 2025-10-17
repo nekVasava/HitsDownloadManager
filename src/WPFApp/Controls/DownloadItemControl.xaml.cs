@@ -9,6 +9,7 @@ namespace HitsDownloadManager.WPFApp.Controls
     {
         private DownloadTask _task;
         private DownloadManager _downloadManager;
+        public DownloadTask Task => _task;
         public DownloadItemControl(DownloadTask task, DownloadManager downloadManager)
         {
             InitializeComponent();
@@ -108,3 +109,4 @@ namespace HitsDownloadManager.WPFApp.Controls
         }
     }
 }
+
