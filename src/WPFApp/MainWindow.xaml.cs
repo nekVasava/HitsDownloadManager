@@ -143,7 +143,7 @@ namespace HitsDownloadManager.WPFApp
                 {
                     // Add UI control for this download
                     var downloadControl = new DownloadItemControl(task, _downloadManager);
-                    downloadsContainer.Children.Add(downloadControl);
+                    downloadsContainer.Children.Insert(0, downloadControl);
                 }
                 // Clear the input
                 txtDownloadUrl.Text = PlaceholderText;

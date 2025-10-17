@@ -50,7 +50,7 @@ namespace HitsDownloadManager.DownloadEngine
         }
         public IEnumerable<DownloadTask> GetAllDownloads()
         {
-            return _downloads.Values.OrderByDescending(d => d.Priority).ThenBy(d => d.CreatedAt);
+            return _downloads.Values.OrderByDescending(d => d.Priority).ThenByDescending(d => d.CreatedAt);
         }
         public DownloadTask GetDownload(string id)
         {
