@@ -9,7 +9,7 @@ namespace HitsDownloadManager.DownloadEngine
     {
         private readonly ConcurrentDictionary<string, DownloadTask> _downloads;
         private readonly ConcurrentDictionary<string, HttpDownloadEngine> _engines;
-        private readonly int _maxConcurrentDownloads;
+        private int _maxConcurrentDownloads;
         private int _activeDownloads;
         public event EventHandler<DownloadTask> DownloadProgressChanged;
         public event EventHandler<DownloadTask> DownloadCompleted;
@@ -20,6 +20,15 @@ namespace HitsDownloadManager.DownloadEngine
             _engines = new ConcurrentDictionary<string, HttpDownloadEngine>();
             _maxConcurrentDownloads = maxConcurrentDownloads;
             _activeDownloads = 0;
+        }
+        public int MaxConcurrentDownloads
+        {
+            get => _maxConcurrentDownloads;
+            set
+            {
+                _maxConcurrentDownloads = value;
+                _ = Task.Run(() => ProcessQueueAsync()); // Restart queue processing with new limit
+            }
         }
         public string AddDownload(string url, string destinationPath, Priority priority = Priority.Normal)
         {
@@ -135,3 +144,6 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
+
+
+

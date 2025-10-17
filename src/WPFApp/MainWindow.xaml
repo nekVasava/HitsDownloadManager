@@ -100,119 +100,69 @@
             <TabItem Header="⚙️ Settings">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="30" MaxWidth="750">
-                        <TextBlock Text="Settings"
-                                  FontSize="28"
-                                  FontWeight="Bold"
-                                  Foreground="{DynamicResource HeadingBrush}"
-                                  Margin="0,0,0,25"/>
-                        <Border Background="{DynamicResource PanelBrush}"
-                               CornerRadius="10"
-                               Padding="25"
-                               Margin="0,0,0,20">
+                        <TextBlock Text="Settings" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,30"/>
+                        <!-- Download Location -->
+                        <Border Background="{DynamicResource PanelBrush}" CornerRadius="10" Padding="20" Margin="0,0,0,15">
                             <StackPanel>
-                                <TextBlock Text="Download Folder"
-                                          FontSize="14"
-                                          FontWeight="Medium"
-                                          Foreground="{DynamicResource HeadingBrush}"
-                                          Margin="0,0,0,10"/>
+                                <TextBlock Text="Download Location" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,12"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="txtDownloadFolder"
-                                            Text="C:\Downloads"
-                                            Background="{DynamicResource InputBackgroundBrush}"
-                                            Foreground="{DynamicResource TextBrush}"
-                                            BorderBrush="{DynamicResource InputBorderBrush}"
-                                            BorderThickness="1"
-                                            Padding="12,10"
-                                            FontSize="13"
-                                            Grid.Column="0"
-                                            Margin="0,0,10,0"/>
-                                    <Button x:Name="btnBrowseFolder"
-                                           Content="Browse"
-                                           Style="{DynamicResource PrimaryButtonStyle}"
-                                           Grid.Column="1"
-                                           Padding="20,10"
-                                           Click="BtnBrowseFolder_Click"/>
+                                    <TextBox x:Name="txtDownloadFolderPath" Text="C:\Downloads" Height="40" VerticalContentAlignment="Center" 
+                                             FontSize="14" Padding="12" Background="{DynamicResource InputBackgroundBrush}" 
+                                             Foreground="{DynamicResource TextBrush}" BorderThickness="0" IsReadOnly="True"/>
+                                    <Button x:Name="btnBrowseFolder" Content="Browse" Grid.Column="1" Width="100" Height="40" 
+                                            Margin="10,0,0,0" Style="{DynamicResource PrimaryButtonStyle}" Click="BtnBrowseFolder_Click"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource PanelBrush}"
-                               CornerRadius="10"
-                               Padding="25"
-                               Margin="0,0,0,20">
+                        <!-- Concurrent Downloads -->
+                        <Border Background="{DynamicResource PanelBrush}" CornerRadius="10" Padding="20" Margin="0,0,0,15">
                             <StackPanel>
-                                <TextBlock Text="Concurrent Downloads"
-                                          FontSize="14"
-                                          FontWeight="Medium"
-                                          Foreground="{DynamicResource HeadingBrush}"
-                                          Margin="0,0,0,10"/>
-                                <TextBox x:Name="txtConcurrentLimit"
-                                        Text="3"
-                                        Background="{DynamicResource InputBackgroundBrush}"
-                                        Foreground="{DynamicResource TextBrush}"
-                                        BorderBrush="{DynamicResource InputBorderBrush}"
-                                        BorderThickness="1"
-                                        Padding="12,10"
-                                        FontSize="13"/>
+                                <TextBlock Text="Concurrent Downloads" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,12"/>
+                                <TextBlock Text="Number of simultaneous downloads (1-10)" FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,0,10"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider x:Name="sliderConcurrent" Minimum="1" Maximum="10" Value="3" TickFrequency="1" 
+                                            IsSnapToTickEnabled="True" VerticalAlignment="Center" ValueChanged="SliderConcurrent_ValueChanged"/>
+                                    <TextBlock x:Name="txtConcurrentValue" Grid.Column="1" Text="3" FontSize="16" FontWeight="SemiBold" 
+                                               Foreground="{DynamicResource HeadingBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource PanelBrush}"
-                               CornerRadius="10"
-                               Padding="25"
-                               Margin="0,0,0,20">
+                        <!-- Notifications -->
+                        <Border Background="{DynamicResource PanelBrush}" CornerRadius="10" Padding="20" Margin="0,0,0,15">
                             <StackPanel>
-                                <TextBlock Text="Speed Limit (KB/s)"
-                                          FontSize="14"
-                                          FontWeight="Medium"
-                                          Foreground="{DynamicResource HeadingBrush}"
-                                          Margin="0,0,0,5"/>
-                                <TextBlock Text="0 = unlimited"
-                                          FontSize="12"
-                                          Foreground="{DynamicResource SecondaryTextBrush}"
-                                          Margin="0,0,0,10"/>
-                                <TextBox x:Name="txtSpeedLimit"
-                                        Text="0"
-                                        Background="{DynamicResource InputBackgroundBrush}"
-                                        Foreground="{DynamicResource TextBrush}"
-                                        BorderBrush="{DynamicResource InputBorderBrush}"
-                                        BorderThickness="1"
-                                        Padding="12,10"
-                                        FontSize="13"/>
+                                <TextBlock Text="Notifications" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,12"/>
+                                <CheckBox x:Name="chkNotifyComplete" Content="Show notification when download completes" 
+                                          FontSize="14" Foreground="{DynamicResource TextBrush}" IsChecked="True" Margin="0,0,0,8"/>
+                                <CheckBox x:Name="chkNotifyFailed" Content="Show notification when download fails" 
+                                          FontSize="14" Foreground="{DynamicResource TextBrush}" IsChecked="True"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource PanelBrush}"
-                               CornerRadius="10"
-                               Padding="25"
-                               Margin="0,0,0,20">
+                        <!-- Auto-start Downloads -->
+                        <Border Background="{DynamicResource PanelBrush}" CornerRadius="10" Padding="20" Margin="0,0,0,15">
                             <StackPanel>
-                                <CheckBox x:Name="chkAutoStart"
-                                         Content="Auto-start downloads on app launch"
-                                         Foreground="{DynamicResource TextBrush}"
-                                         FontSize="13"
-                                         Margin="0,0,0,15"
-                                         Checked="ChkAutoStart_Changed"
-                                         Unchecked="ChkAutoStart_Changed"/>
-                                <CheckBox x:Name="chkNotifications"
-                                         Content="Show notifications when downloads complete"
-                                         Foreground="{DynamicResource TextBrush}"
-                                         FontSize="13"
-                                         Checked="ChkNotifications_Changed"
-                                         Unchecked="ChkNotifications_Changed"/>
+                                <TextBlock Text="Behavior" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource HeadingBrush}" Margin="0,0,0,12"/>
+                                <CheckBox x:Name="chkAutoStart" Content="Start downloads automatically" 
+                                          FontSize="14" Foreground="{DynamicResource TextBrush}" IsChecked="True" Margin="0,0,0,8"/>
+                                <CheckBox x:Name="chkConfirmCancel" Content="Confirm before canceling downloads" 
+                                          FontSize="14" Foreground="{DynamicResource TextBrush}" IsChecked="False"/>
                             </StackPanel>
                         </Border>
-                        <Button x:Name="btnSaveSettings"
-                               Content="Save Settings"
-                               Style="{DynamicResource PrimaryButtonStyle}"
-                               HorizontalAlignment="Left"
-                               Padding="30,12"
-                               FontSize="14"
-                               Click="BtnSaveSettings_Click"/>
+                        <!-- Save Button -->
+                        <Button x:Name="btnSaveSettings" Content="Save Settings" Width="150" Height="42" 
+                                Style="{DynamicResource PrimaryButtonStyle}" FontSize="14" Click="BtnSaveSettings_Click" 
+                                HorizontalAlignment="Left" Margin="0,10,0,0"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+
             <TabItem Header="📜 History">
                 <Grid Margin="30">
                     <TextBlock Text="Download History"
@@ -261,4 +211,5 @@
         </TabControl>
     </Grid>
 </Window>
+
 
