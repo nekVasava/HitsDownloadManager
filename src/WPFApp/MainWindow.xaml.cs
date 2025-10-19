@@ -236,8 +236,25 @@ namespace HitsDownloadManager.WPFApp
         }
         #endregion
         
+            public DownloadManager GetDownloadManager()
+        {
+            return _downloadManager;
+        }
+        public void AddDownloadFromHistory(string url)
+        {
+            // Switch to Downloads tab
+            MainTabControl.SelectedIndex = 0;
+            // Set URL in textbox
+            txtDownloadUrl.Text = url;
+            txtDownloadUrl.Foreground = (SolidColorBrush)Application.Current.Resources["TextBrush"];
+            // Focus the add button to make it easy to start download
+            btnAddDownload.Focus();
+        }
     }
 }
+
+
+
 
 
 

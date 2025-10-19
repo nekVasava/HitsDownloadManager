@@ -144,5 +144,24 @@ namespace HitsDownloadManager.DownloadEngine
                 });
             }
         }
+        public List<DownloadTask> GetAllTasks()
+        {
+            return _downloads.Values.ToList();
+        }
+        public void RemoveTask(string taskId)
+        {
+            _downloads.TryRemove(taskId, out _);
+        }
+        public void ClearHistory()
+        {
+            var completedTasks = _downloads.Where(t =>
+                t.Value.Status == DownloadStatus.Completed ||
+                t.Value.Status == DownloadStatus.Failed ||
+                t.Value.Status == DownloadStatus.Cancelled).ToList();
+            foreach (var task in completedTasks)
+            {
+                _downloads.TryRemove(task.Key, out _);
+            }
+        }
     }
 }

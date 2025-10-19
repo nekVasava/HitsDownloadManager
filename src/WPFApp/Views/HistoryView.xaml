@@ -1,0 +1,225 @@
+<UserControl x:Class="HitsDownloadManager.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource BackgroundBrush}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- Statistics Panel -->
+        <Border Grid.Row="0" Background="{DynamicResource PanelBrush}" 
+                CornerRadius="8" Padding="20" Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                    <TextBlock Text="Total Downloads" FontSize="14" 
+                               Foreground="{DynamicResource SecondaryTextBrush}" 
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TotalDownloadsText" Text="0" FontSize="28" 
+                               FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" 
+                               HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                    <TextBlock Text="Total Size" FontSize="14" 
+                               Foreground="{DynamicResource SecondaryTextBrush}" 
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="TotalSizeText" Text="0 MB" FontSize="28" 
+                               FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" 
+                               HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                    <TextBlock Text="Success Rate" FontSize="14" 
+                               Foreground="{DynamicResource SecondaryTextBrush}" 
+                               HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="SuccessRateText" Text="0%" FontSize="28" 
+                               FontWeight="Bold" Foreground="#4CAF50" 
+                               HorizontalAlignment="Center" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <!-- Search and Filters -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0" x:Name="SearchBox"
+                     Background="{DynamicResource InputBackgroundBrush}"
+                     Foreground="{DynamicResource TextBrush}"
+                     BorderBrush="{DynamicResource InputBorderBrush}"
+                     BorderThickness="1"
+                     Padding="10"
+                     FontSize="14"
+                     TextChanged="SearchBox_TextChanged">
+                <TextBox.Resources>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Border Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                            CornerRadius="6"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ScrollViewer x:Name="PART_ContentHost"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Resources>
+            </TextBox>
+            <ComboBox Grid.Column="1" x:Name="DateFilterComboBox"
+                      Width="150" Margin="10,0,0,0"
+                      Background="{DynamicResource InputBackgroundBrush}"
+                      Foreground="{DynamicResource TextBrush}"
+                      BorderBrush="{DynamicResource InputBorderBrush}"
+                      SelectionChanged="DateFilterComboBox_SelectionChanged">
+                <ComboBoxItem Content="All Time" IsSelected="True"/>
+                <ComboBoxItem Content="Today"/>
+                <ComboBoxItem Content="Last 7 Days"/>
+                <ComboBoxItem Content="Last 30 Days"/>
+            </ComboBox>
+            <ComboBox Grid.Column="2" x:Name="StatusFilterComboBox"
+                      Width="150" Margin="10,0,0,0"
+                      Background="{DynamicResource InputBackgroundBrush}"
+                      Foreground="{DynamicResource TextBrush}"
+                      BorderBrush="{DynamicResource InputBorderBrush}"
+                      SelectionChanged="StatusFilterComboBox_SelectionChanged">
+                <ComboBoxItem Content="All Status" IsSelected="True"/>
+                <ComboBoxItem Content="Completed"/>
+                <ComboBoxItem Content="Failed"/>
+                <ComboBoxItem Content="Cancelled"/>
+            </ComboBox>
+        </Grid>
+        <!-- History DataGrid -->
+        <DataGrid Grid.Row="2" x:Name="HistoryDataGrid"
+                  AutoGenerateColumns="False"
+                  Background="{DynamicResource PanelBrush}"
+                  Foreground="{DynamicResource TextBrush}"
+                  BorderBrush="{DynamicResource InputBorderBrush}"
+                  BorderThickness="1"
+                  RowBackground="{DynamicResource PanelBrush}"
+                  AlternatingRowBackground="{DynamicResource InputBackgroundBrush}"
+                  GridLinesVisibility="None"
+                  HeadersVisibility="Column"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="Padding" Value="10"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="File Name" Binding="{Binding FileName}" Width="2*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="File Size" Binding="{Binding FileSizeFormatted}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="Date Added" Binding="{Binding DateAddedFormatted}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTemplateColumn Header="Actions" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="Re-download"
+                                        Foreground="{DynamicResource AccentBrush}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        FontSize="12"
+                                        Padding="8,4"
+                                        Margin="5,0"
+                                        Cursor="Hand"
+                                        Tag="{Binding}"
+                                        Click="ReDownload_Click"/>
+                                <Button Content="Delete"
+                                        Foreground="#FF5252"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        FontSize="12"
+                                        Padding="8,4"
+                                        Margin="5,0"
+                                        Cursor="Hand"
+                                        Tag="{Binding}"
+                                        Click="DeleteHistory_Click"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <!-- Clear History Button -->
+        <Button Grid.Row="3" Content="CLEAR ALL HISTORY"
+                Background="#FF5252"
+                Foreground="White"
+                FontSize="14"
+                FontWeight="Bold"
+                Padding="20,12"
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center"
+                Cursor="Hand"
+                Click="ClearHistory_Click">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="6"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E53935"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Button.Style>
+        </Button>
+    </Grid>
+</UserControl>
