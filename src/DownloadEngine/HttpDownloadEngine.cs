@@ -34,7 +34,8 @@ namespace HitsDownloadManager.DownloadEngine
                     progress?.Report(task);
                     Console.WriteLine($"[DEBUG] Sending HTTP request...");
                     HttpResponseMessage response;
-                    if (task.DownloadedBytes > 0 && File.Exists(task.DestinationPath))
+                    bool isResume = task.DownloadedBytes > 0 && File.Exists(task.DestinationPath);
+                    if (isResume)
                     {
                         var request = new HttpRequestMessage(HttpMethod.Get, task.Url);
                         request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(task.DownloadedBytes, null);
@@ -60,15 +61,28 @@ namespace HitsDownloadManager.DownloadEngine
                             Console.WriteLine($"[DEBUG] Followed redirect. New status: {response.StatusCode}");
                         }
                     }
-                    task.TotalBytes = response.Content.Headers.ContentLength ?? 0;
-                    Console.WriteLine($"[DEBUG] Total bytes: {task.TotalBytes}");
+                    // Fixed: Handle TotalBytes correctly for resume and initial downloads
+                    var contentLength = response.Content.Headers.ContentLength ?? 0;
+                    if (isResume && response.StatusCode == System.Net.HttpStatusCode.PartialContent)
+                    {
+                        // For resume, ContentLength is remaining bytes, so add already downloaded bytes
+                        task.TotalBytes = contentLength + task.DownloadedBytes;
+                        Console.WriteLine($"[DEBUG] Resume download - Content length: {contentLength}, Already downloaded: {task.DownloadedBytes}, Total: {task.TotalBytes}");
+                    }
+                    else if (!isResume)
+                    {
+                        // For new download, ContentLength is the total file size
+                        task.TotalBytes = contentLength;
+                        Console.WriteLine($"[DEBUG] New download - Total bytes: {task.TotalBytes}");
+                    }
                     using var contentStream = await response.Content.ReadAsStreamAsync();
-                    using var fileStream = new FileStream(task.DestinationPath, 
-                        task.DownloadedBytes > 0 ? FileMode.Append : FileMode.Create, 
+                    using var fileStream = new FileStream(task.DestinationPath,
+                        task.DownloadedBytes > 0 ? FileMode.Append : FileMode.Create,
                         FileAccess.Write, FileShare.None, 8192, true);
                     var buffer = new byte[8192];
                     int bytesRead;
                     var startTime = DateTime.Now;
+                    var startBytes = task.DownloadedBytes;
                     while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length, _cancellationTokenSource.Token)) > 0)
                     {
                         await fileStream.WriteAsync(buffer, 0, bytesRead, _cancellationTokenSource.Token);
@@ -76,16 +90,25 @@ namespace HitsDownloadManager.DownloadEngine
                         var elapsed = (DateTime.Now - startTime).TotalSeconds;
                         if (elapsed > 0)
                         {
-                            var speed = task.DownloadedBytes / elapsed;
+                            var currentSessionBytes = task.DownloadedBytes - startBytes;
+                            var speed = currentSessionBytes / elapsed;
                             task.Speed = FormatSpeed(speed);
                             if (task.TotalBytes > 0)
                             {
                                 var remaining = task.TotalBytes - task.DownloadedBytes;
-                                var timeRemaining = remaining / speed;
-                                task.TimeRemaining = FormatTime(timeRemaining);
+                                if (remaining > 0 && speed > 0)
+                                {
+                                    var timeRemaining = remaining / speed;
+                                    task.TimeRemaining = FormatTime(timeRemaining);
+                                }
                             }
                         }
                         progress?.Report(task);
+                    }
+                    // Update TotalBytes to actual downloaded size if it was unknown
+                    if (task.TotalBytes == 0)
+                    {
+                        task.TotalBytes = task.DownloadedBytes;
                     }
                     task.Status = DownloadStatus.Completed;
                     task.CompletedAt = DateTime.Now;
@@ -137,9 +160,3 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
-
-
-
-
-
-

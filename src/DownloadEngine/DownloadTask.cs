@@ -61,6 +61,7 @@ namespace HitsDownloadManager.DownloadEngine
             {
                 _status = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Progress)); // Update progress when status changes
                 if (value == DownloadStatus.Failed || value == DownloadStatus.Completed)
                 {
                     TimeRemaining = value == DownloadStatus.Completed ? "0s" : "-";
@@ -80,8 +81,23 @@ namespace HitsDownloadManager.DownloadEngine
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? CompletedAt { get; set; }
         public string ErrorMessage { get; set; }
-        public double Progress => TotalBytes > 0 ? (DownloadedBytes * 100.0) / TotalBytes : 0;
-    public long PersistedDownloadedBytes { get; set; } = 0;
+        // Fixed Progress calculation
+        public double Progress
+        {
+            get
+            {
+                // If completed, always show 100%
+                if (Status == DownloadStatus.Completed)
+                    return 100.0;
+                // If TotalBytes is unknown or 0, calculate based on downloaded bytes
+                if (TotalBytes <= 0)
+                    return DownloadedBytes > 0 ? 0 : 0;
+                // Normal calculation, cap at 100%
+                var progress = (DownloadedBytes * 100.0) / TotalBytes;
+                return Math.Min(progress, 100.0);
+            }
+        }
+        public long PersistedDownloadedBytes { get; set; } = 0;
         public string Speed
         {
             get => _speed;
@@ -100,11 +116,20 @@ namespace HitsDownloadManager.DownloadEngine
                 OnPropertyChanged();
             }
         }
-        public string TotalSizeFormatted => FormatBytes(TotalBytes);
+        // Fixed TotalSizeFormatted
+        public string TotalSizeFormatted
+        {
+            get
+            {
+                if (Status == DownloadStatus.Completed && TotalBytes == 0)
+                    return FormatBytes(DownloadedBytes);
+                return TotalBytes > 0 ? FormatBytes(TotalBytes) : "Unknown";
+            }
+        }
         public string DownloadedSizeFormatted => FormatBytes(DownloadedBytes);
         private string FormatBytes(long bytes)
         {
-            if (bytes == 0) return "Unknown";
+            if (bytes == 0) return "0 B";
             if (bytes < 1024) return $"{bytes} B";
             if (bytes < 1024 * 1024) return $"{bytes / 1024.0:F2} KB";
             if (bytes < 1024 * 1024 * 1024) return $"{bytes / (1024.0 * 1024):F2} MB";
@@ -116,4 +141,3 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
-
