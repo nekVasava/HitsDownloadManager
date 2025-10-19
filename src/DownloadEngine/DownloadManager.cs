@@ -65,6 +65,7 @@ namespace HitsDownloadManager.DownloadEngine
                 if (_downloads.TryGetValue(id, out var task))
                 {
                     task.Status = DownloadStatus.Paused;
+                    task.Speed = "0 KB/s";  // Reset speed on pause
                 }
             }
         }
@@ -72,6 +73,7 @@ namespace HitsDownloadManager.DownloadEngine
         {
             if (_downloads.TryGetValue(id, out var task))
             {
+                task.DownloadedBytes = task.PersistedDownloadedBytes; // Reset downloaded bytes on resume
                 task.Status = DownloadStatus.Pending;
                 Task.Run(() => ProcessQueueAsync());
             }
@@ -144,7 +146,3 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
-
-
-
-

@@ -49,6 +49,7 @@ namespace HitsDownloadManager.DownloadEngine
             set
             {
                 _downloadedBytes = value;
+                PersistedDownloadedBytes = value;  // Update persisted bytes on change
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Progress));
                 OnPropertyChanged(nameof(DownloadedSizeFormatted));
@@ -61,7 +62,7 @@ namespace HitsDownloadManager.DownloadEngine
             {
                 _status = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(Progress)); // Update progress when status changes
+                OnPropertyChanged(nameof(Progress));
                 if (value == DownloadStatus.Failed || value == DownloadStatus.Completed)
                 {
                     TimeRemaining = value == DownloadStatus.Completed ? "0s" : "-";
@@ -81,18 +82,14 @@ namespace HitsDownloadManager.DownloadEngine
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? CompletedAt { get; set; }
         public string ErrorMessage { get; set; }
-        // Fixed Progress calculation
         public double Progress
         {
             get
             {
-                // If completed, always show 100%
                 if (Status == DownloadStatus.Completed)
                     return 100.0;
-                // If TotalBytes is unknown or 0, calculate based on downloaded bytes
                 if (TotalBytes <= 0)
                     return DownloadedBytes > 0 ? 0 : 0;
-                // Normal calculation, cap at 100%
                 var progress = (DownloadedBytes * 100.0) / TotalBytes;
                 return Math.Min(progress, 100.0);
             }
@@ -116,7 +113,6 @@ namespace HitsDownloadManager.DownloadEngine
                 OnPropertyChanged();
             }
         }
-        // Fixed TotalSizeFormatted
         public string TotalSizeFormatted
         {
             get

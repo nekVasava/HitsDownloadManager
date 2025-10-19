@@ -22,6 +22,7 @@ namespace HitsDownloadManager.DownloadEngine
         public async Task<bool> DownloadFileAsync(DownloadTask task, IProgress<DownloadTask> progress)
         {
             _cancellationTokenSource = new CancellationTokenSource();
+            task.DownloadedBytes = task.PersistedDownloadedBytes;  // Initialize DownloadedBytes for resume
             int retryCount = 0;
             int maxRetries = int.MaxValue;
             int delaySeconds = 2;
@@ -48,7 +49,6 @@ namespace HitsDownloadManager.DownloadEngine
                     }
                     Console.WriteLine($"[DEBUG] Response status: {response.StatusCode}");
                     Console.WriteLine($"[DEBUG] Final URL after redirect: {response.RequestMessage?.RequestUri}");
-                    // Manual redirect handling
                     if (response.StatusCode == System.Net.HttpStatusCode.Found || response.StatusCode == System.Net.HttpStatusCode.Moved)
                     {
                         var redirectUrl = response.Headers.Location;
@@ -61,17 +61,14 @@ namespace HitsDownloadManager.DownloadEngine
                             Console.WriteLine($"[DEBUG] Followed redirect. New status: {response.StatusCode}");
                         }
                     }
-                    // Fixed: Handle TotalBytes correctly for resume and initial downloads
                     var contentLength = response.Content.Headers.ContentLength ?? 0;
                     if (isResume && response.StatusCode == System.Net.HttpStatusCode.PartialContent)
                     {
-                        // For resume, ContentLength is remaining bytes, so add already downloaded bytes
                         task.TotalBytes = contentLength + task.DownloadedBytes;
                         Console.WriteLine($"[DEBUG] Resume download - Content length: {contentLength}, Already downloaded: {task.DownloadedBytes}, Total: {task.TotalBytes}");
                     }
                     else if (!isResume)
                     {
-                        // For new download, ContentLength is the total file size
                         task.TotalBytes = contentLength;
                         Console.WriteLine($"[DEBUG] New download - Total bytes: {task.TotalBytes}");
                     }
@@ -105,7 +102,6 @@ namespace HitsDownloadManager.DownloadEngine
                         }
                         progress?.Report(task);
                     }
-                    // Update TotalBytes to actual downloaded size if it was unknown
                     if (task.TotalBytes == 0)
                     {
                         task.TotalBytes = task.DownloadedBytes;
@@ -120,6 +116,7 @@ namespace HitsDownloadManager.DownloadEngine
                 {
                     Console.WriteLine("[INFO] Download paused by user.");
                     task.Status = DownloadStatus.Paused;
+                    task.Speed = "0 KB/s";  // Reset speed on pause
                     progress?.Report(task);
                     return false;
                 }
