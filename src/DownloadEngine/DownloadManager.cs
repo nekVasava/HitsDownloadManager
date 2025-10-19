@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 namespace HitsDownloadManager.DownloadEngine
@@ -42,7 +43,7 @@ namespace HitsDownloadManager.DownloadEngine
             };
             if (_downloads.TryAdd(task.Id, task))
             {
-                Console.WriteLine($"[DEBUG] Download added: {task.Filename}");
+                Debug.WriteLine($"[DownloadManager] Download added: {task.Filename} (ID: {task.Id})");
                 Task.Run(() => ProcessQueueAsync());
                 return task.Id;
             }
@@ -66,6 +67,7 @@ namespace HitsDownloadManager.DownloadEngine
                 {
                     task.Status = DownloadStatus.Paused;
                     task.Speed = "0 KB/s";  // Reset speed on pause
+                    Debug.WriteLine($"[DownloadManager] Download paused: {task.Filename}");
                 }
             }
         }
@@ -75,24 +77,37 @@ namespace HitsDownloadManager.DownloadEngine
             {
                 task.DownloadedBytes = task.PersistedDownloadedBytes; // Reset downloaded bytes on resume
                 task.Status = DownloadStatus.Pending;
+                Debug.WriteLine($"[DownloadManager] Download resumed: {task.Filename}");
                 Task.Run(() => ProcessQueueAsync());
             }
         }
         public void CancelDownload(string id)
         {
+            Debug.WriteLine($"[DownloadManager] CancelDownload called for ID: {id}");
+            // Stop the download engine first
             if (_engines.TryGetValue(id, out var engine))
             {
                 engine.Pause();
+                _engines.TryRemove(id, out _);
+                Debug.WriteLine($"[DownloadManager] Download engine stopped for ID: {id}");
             }
-            if (_downloads.TryRemove(id, out var task))
+            // Update task status to Cancelled but KEEP it in the dictionary for history
+            if (_downloads.TryGetValue(id, out var task))
             {
                 task.Status = DownloadStatus.Cancelled;
+                task.Speed = "0 KB/s";
+                task.TimeRemaining = "-";
+                Debug.WriteLine($"[DownloadManager] Download cancelled: {task.Filename} (Status: {task.Status})");
+                // DO NOT REMOVE from _downloads - keep it for history!
             }
-            _engines.TryRemove(id, out _);
+            else
+            {
+                Debug.WriteLine($"[DownloadManager] Warning: Task ID {id} not found in downloads dictionary");
+            }
         }
         private async Task ProcessQueueAsync()
         {
-            Console.WriteLine($"[DEBUG] ProcessQueue called. Active downloads: {_activeDownloads}");
+            Debug.WriteLine($"[DownloadManager] ProcessQueue called. Active downloads: {_activeDownloads}");
             while (_activeDownloads < _maxConcurrentDownloads)
             {
                 var nextTask = _downloads.Values
@@ -102,10 +117,10 @@ namespace HitsDownloadManager.DownloadEngine
                     .FirstOrDefault();
                 if (nextTask == null)
                 {
-                    Console.WriteLine($"[DEBUG] No pending downloads in queue");
+                    Debug.WriteLine($"[DownloadManager] No pending downloads in queue");
                     break;
                 }
-                Console.WriteLine($"[DEBUG] Starting download: {nextTask.Filename}");
+                Debug.WriteLine($"[DownloadManager] Starting download: {nextTask.Filename}");
                 nextTask.Status = DownloadStatus.Downloading;
                 System.Threading.Interlocked.Increment(ref _activeDownloads);
                 _ = Task.Run(async () =>
@@ -121,16 +136,18 @@ namespace HitsDownloadManager.DownloadEngine
                         var success = await engine.DownloadFileAsync(nextTask, progress);
                         if (success)
                         {
+                            Debug.WriteLine($"[DownloadManager] Download completed: {nextTask.Filename}");
                             DownloadCompleted?.Invoke(this, nextTask);
                         }
                         else
                         {
+                            Debug.WriteLine($"[DownloadManager] Download failed: {nextTask.Filename}");
                             DownloadFailed?.Invoke(this, nextTask);
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"[ERROR] Exception in download task: {ex.Message}");
+                        Debug.WriteLine($"[DownloadManager] Exception in download task: {ex.Message}");
                         nextTask.Status = DownloadStatus.Failed;
                         nextTask.ErrorMessage = ex.Message;
                         DownloadFailed?.Invoke(this, nextTask);
@@ -146,11 +163,20 @@ namespace HitsDownloadManager.DownloadEngine
         }
         public List<DownloadTask> GetAllTasks()
         {
-            return _downloads.Values.ToList();
+            var tasks = _downloads.Values.ToList();
+            Debug.WriteLine($"[DownloadManager] GetAllTasks returning {tasks.Count} tasks");
+            foreach (var task in tasks)
+            {
+                Debug.WriteLine($"  - {task.Filename}: Status={task.Status}, Created={task.CreatedAt}");
+            }
+            return tasks;
         }
         public void RemoveTask(string taskId)
         {
-            _downloads.TryRemove(taskId, out _);
+            if (_downloads.TryRemove(taskId, out var task))
+            {
+                Debug.WriteLine($"[DownloadManager] Task removed from history: {task.Filename}");
+            }
         }
         public void ClearHistory()
         {
@@ -158,6 +184,7 @@ namespace HitsDownloadManager.DownloadEngine
                 t.Value.Status == DownloadStatus.Completed ||
                 t.Value.Status == DownloadStatus.Failed ||
                 t.Value.Status == DownloadStatus.Cancelled).ToList();
+            Debug.WriteLine($"[DownloadManager] Clearing {completedTasks.Count} history items");
             foreach (var task in completedTasks)
             {
                 _downloads.TryRemove(task.Key, out _);

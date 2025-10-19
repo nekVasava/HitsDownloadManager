@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +13,7 @@ namespace HitsDownloadManager.Views
         private List<DownloadHistoryItem> _allHistoryItems = new();
         private List<DownloadHistoryItem> _filteredHistoryItems = new();
         private DownloadManager _downloadManager;
+        private bool _isInitializing = true; // Flag to prevent filter triggers during load
         public HistoryView()
         {
             InitializeComponent();
@@ -19,39 +21,48 @@ namespace HitsDownloadManager.Views
         }
         private void HistoryView_Loaded(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("[HistoryView] View loaded, getting DownloadManager...");
             // Get DownloadManager from MainWindow
             var mainWindow = Window.GetWindow(this) as MainWindow;
             if (mainWindow != null)
             {
                 _downloadManager = mainWindow.GetDownloadManager();
                 LoadHistory();
+                _isInitializing = false; // Allow filters to work after initial load
+                Debug.WriteLine("[HistoryView] Initialization complete");
             }
         }
         private void LoadHistory()
         {
             if (_downloadManager == null) return;
+            Debug.WriteLine("[HistoryView] Loading history...");
             _allHistoryItems.Clear();
             // Get all tasks from DownloadManager
             var allTasks = _downloadManager.GetAllTasks();
+            Debug.WriteLine($"[HistoryView] Found {allTasks.Count} total tasks");
             foreach (var task in allTasks)
             {
+                Debug.WriteLine($"[HistoryView] Task: {task.Filename}, Status: {task.Status}, Created: {task.CreatedAt}");
                 _allHistoryItems.Add(new DownloadHistoryItem
                 {
                     Id = task.Id,
                     FileName = task.Filename,
                     Url = task.Url,
                     TotalBytes = task.TotalBytes,
-                    Status = task.Status.ToString(),
+                    Status = task.Status.ToString(), // Convert enum to string
                     DateAdded = task.CreatedAt,
                     DateCompleted = task.CompletedAt
                 });
             }
+            Debug.WriteLine($"[HistoryView] Loaded {_allHistoryItems.Count} history items");
             ApplyFilters();
             UpdateStatistics();
         }
         private void ApplyFilters()
         {
+            Debug.WriteLine("[HistoryView] ApplyFilters called");
             _filteredHistoryItems = _allHistoryItems.ToList();
+            Debug.WriteLine($"[HistoryView] Starting with {_filteredHistoryItems.Count} items");
             // Apply search filter
             var searchText = SearchBox.Text?.Trim().ToLower();
             if (!string.IsNullOrEmpty(searchText))
@@ -60,9 +71,11 @@ namespace HitsDownloadManager.Views
                     .Where(h => h.FileName.ToLower().Contains(searchText) ||
                                 h.Url.ToLower().Contains(searchText))
                     .ToList();
+                Debug.WriteLine($"[HistoryView] After search filter: {_filteredHistoryItems.Count} items");
             }
             // Apply date filter
             var dateFilter = (DateFilterComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            Debug.WriteLine($"[HistoryView] Date filter: {dateFilter}");
             var now = DateTime.Now;
             _filteredHistoryItems = dateFilter switch
             {
@@ -71,14 +84,18 @@ namespace HitsDownloadManager.Views
                 "Last 30 Days" => _filteredHistoryItems.Where(h => h.DateAdded >= now.AddDays(-30)).ToList(),
                 _ => _filteredHistoryItems
             };
+            Debug.WriteLine($"[HistoryView] After date filter: {_filteredHistoryItems.Count} items");
             // Apply status filter
             var statusFilter = (StatusFilterComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            if (statusFilter != "All Status")
+            Debug.WriteLine($"[HistoryView] Status filter: {statusFilter}");
+            if (statusFilter != null && statusFilter != "All Status")
             {
                 _filteredHistoryItems = _filteredHistoryItems
-                    .Where(h => h.Status == statusFilter)
+                    .Where(h => h.Status.Equals(statusFilter, StringComparison.OrdinalIgnoreCase))
                     .ToList();
+                Debug.WriteLine($"[HistoryView] After status filter: {_filteredHistoryItems.Count} items");
             }
+            Debug.WriteLine($"[HistoryView] Final filtered count: {_filteredHistoryItems.Count}");
             HistoryDataGrid.ItemsSource = _filteredHistoryItems;
         }
         private void UpdateStatistics()
@@ -91,6 +108,7 @@ namespace HitsDownloadManager.Views
             TotalDownloadsText.Text = _allHistoryItems.Count.ToString();
             TotalSizeText.Text = FormatBytes(totalSize);
             SuccessRateText.Text = $"{successRate:F1}%";
+            Debug.WriteLine($"[HistoryView] Statistics - Total: {_allHistoryItems.Count}, Completed: {completed}, Success Rate: {successRate:F1}%");
         }
         private string FormatBytes(long bytes)
         {
@@ -101,17 +119,21 @@ namespace HitsDownloadManager.Views
         }
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (_isInitializing) return;
+            Debug.WriteLine("[HistoryView] Search text changed");
             ApplyFilters();
         }
         private void DateFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_allHistoryItems.Count > 0)
-                ApplyFilters();
+            if (_isInitializing) return;
+            Debug.WriteLine("[HistoryView] Date filter selection changed");
+            ApplyFilters();
         }
         private void StatusFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_allHistoryItems.Count > 0)
-                ApplyFilters();
+            if (_isInitializing) return;
+            Debug.WriteLine("[HistoryView] Status filter selection changed");
+            ApplyFilters();
         }
         private void ReDownload_Click(object sender, RoutedEventArgs e)
         {
@@ -119,6 +141,7 @@ namespace HitsDownloadManager.Views
             var item = button?.Tag as DownloadHistoryItem;
             if (item != null)
             {
+                Debug.WriteLine($"[HistoryView] Re-download clicked for: {item.FileName}");
                 var mainWindow = Window.GetWindow(this) as MainWindow;
                 mainWindow?.AddDownloadFromHistory(item.Url);
             }
@@ -136,6 +159,7 @@ namespace HitsDownloadManager.Views
                     MessageBoxImage.Question);
                 if (result == MessageBoxResult.Yes)
                 {
+                    Debug.WriteLine($"[HistoryView] Deleting history item: {item.FileName}");
                     _downloadManager?.RemoveTask(item.Id);
                     LoadHistory();
                 }
@@ -150,12 +174,14 @@ namespace HitsDownloadManager.Views
                 MessageBoxImage.Warning);
             if (result == MessageBoxResult.Yes)
             {
+                Debug.WriteLine("[HistoryView] Clearing all history");
                 _downloadManager?.ClearHistory();
                 LoadHistory();
             }
         }
         public void RefreshHistory()
         {
+            Debug.WriteLine("[HistoryView] RefreshHistory called");
             LoadHistory();
         }
     }
