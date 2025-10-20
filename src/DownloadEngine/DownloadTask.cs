@@ -70,6 +70,7 @@ namespace HitsDownloadManager.DownloadEngine
             }
         }
         public Priority Priority { get; set; } = Priority.Normal;
+        public int QueuePosition { get; set; }
         public int RetryCount
         {
             get => _retryCount;
@@ -137,3 +138,5 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
+
+

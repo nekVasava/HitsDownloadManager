@@ -171,6 +171,56 @@ namespace HitsDownloadManager.DownloadEngine
             }
             return tasks;
         }
+        public void MoveTaskUp(string taskId)
+        {
+            Debug.WriteLine($"[DownloadManager] MoveTaskUp: {taskId}");
+            if (_downloads.TryGetValue(taskId, out var task))
+            {
+                var allTasks = GetAllTasks()
+                    .Where(t => t.Status != DownloadStatus.Completed)
+                    .OrderBy(t => t.QueuePosition)
+                    .ToList();
+                int currentIndex = allTasks.FindIndex(t => t.Id == taskId);
+                if (currentIndex > 0)
+                {
+                    // Swap queue positions
+                    int temp = task.QueuePosition;
+                    task.QueuePosition = allTasks[currentIndex - 1].QueuePosition;
+                    allTasks[currentIndex - 1].QueuePosition = temp;
+                    Debug.WriteLine($"[DownloadManager] Moved task up: {taskId}");
+                }
+            }
+        }
+        public void MoveTaskDown(string taskId)
+        {
+            Debug.WriteLine($"[DownloadManager] MoveTaskDown: {taskId}");
+            if (_downloads.TryGetValue(taskId, out var task))
+            {
+                var allTasks = GetAllTasks()
+                    .Where(t => t.Status != DownloadStatus.Completed)
+                    .OrderBy(t => t.QueuePosition)
+                    .ToList();
+                int currentIndex = allTasks.FindIndex(t => t.Id == taskId);
+                if (currentIndex >= 0 && currentIndex < allTasks.Count() - 1)
+                {
+                    // Swap queue positions
+                    int temp = task.QueuePosition;
+                    task.QueuePosition = allTasks[currentIndex + 1].QueuePosition;
+                    allTasks[currentIndex + 1].QueuePosition = temp;
+                    Debug.WriteLine($"[DownloadManager] Moved task down: {taskId}");
+                }
+            }
+        }
+        public void SetTaskPriority(string taskId, Priority priority)
+        {
+            Debug.WriteLine($"[DownloadManager] SetTaskPriority: {taskId} to {priority}");
+            if (_downloads.TryGetValue(taskId, out var task))
+            {
+                task.Priority = priority;
+                Debug.WriteLine($"[DownloadManager] Task priority updated: {taskId}");
+            }
+        }
+
         public void RemoveTask(string taskId)
         {
             if (_downloads.TryRemove(taskId, out var task))
@@ -192,3 +242,4 @@ namespace HitsDownloadManager.DownloadEngine
         }
     }
 }
+
