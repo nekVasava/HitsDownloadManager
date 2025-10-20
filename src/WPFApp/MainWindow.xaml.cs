@@ -266,3 +266,37 @@ namespace HitsDownloadManager.WPFApp
 
 
 
+using System.Windows;
+using System.Windows.Controls;
+using HitsDownloadManager.WPFApp.Views;
+public partial class MainWindow : Window
+{
+    private QueueView _queueView;
+    private void LoadQueueTab()
+    {
+        if (_queueView == null)
+        {
+            _queueView = new QueueView();
+            QueueFrame.Content = _queueView;
+        }
+    }
+    private void QueueTab_GotFocus(object sender, RoutedEventArgs e)
+    {
+        LoadQueueTab();
+        System.Diagnostics.Debug.WriteLine("[MainWindow] Queue tab loaded/refreshed");
+    }
+}
+using System.Windows;
+using System.Windows.Controls;
+using HitsDownloadManager.WPFApp.Views;
+public partial class MainWindow : Window
+{
+    private void QueueTab_GotFocus(object sender, RoutedEventArgs e)
+    {
+        if (QueueFrame.Content == null)
+        {
+            var queueView = new QueueView();
+            QueueFrame.Content = queueView;
+        }
+    }
+}

@@ -1,0 +1,4 @@
+<!-- Add Queue tab in MainWindow.xaml -->
+<TabItem Header="Queue" x:Name="QueueTab" >
+    <Frame x:Name="QueueFrame" NavigationUIVisibility="Hidden" />
+</TabItem>

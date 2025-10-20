@@ -243,3 +243,118 @@ namespace HitsDownloadManager.DownloadEngine
     }
 }
 
+public partial class DownloadManager
+{
+    public void MoveUp(string taskId)
+    {
+        Debug.WriteLine($"[DownloadManager] MoveUp called for task {taskId}");
+        // TODO: Implement moving task up in queue
+    }
+    public void MoveDown(string taskId)
+    {
+        Debug.WriteLine($"[DownloadManager] MoveDown called for task {taskId}");
+        // TODO: Implement moving task down in queue
+    }
+    public void StartAll()
+    {
+        Debug.WriteLine("[DownloadManager] StartAll called");
+        // TODO: Implement starting all pending downloads respecting concurrent limit
+    }
+    public void PauseAll()
+    {
+        Debug.WriteLine("[DownloadManager] PauseAll called");
+        // TODO: Implement pausing all active downloads
+    }
+}
+public void StartAll()
+{
+    Debug.WriteLine("[DownloadManager] StartAll called");
+    var tasksToStart = _downloads.Values
+        .Where(t => t.Status == DownloadStatus.Pending)
+        .OrderBy(t => t.Priority)
+        .ThenBy(t => t.QueuePosition)
+        .Take(_concurrentDownloadLimit) // Assuming this field exists
+        .ToList();
+    foreach (var task in tasksToStart)
+    {
+        ResumeDownload(task);
+    }
+}
+public void PauseAll()
+{
+    Debug.WriteLine("[DownloadManager] PauseAll called");
+    var activeTasks = _downloads.Values
+        .Where(t => t.Status == DownloadStatus.Downloading)
+        .ToList();
+    foreach (var task in activeTasks)
+    {
+        PauseDownload(task);
+    }
+}
+public void MoveUp(string taskId)
+{
+    Debug.WriteLine($"[DownloadManager] MoveUp called for task {taskId}");
+    if (!_downloads.TryGetValue(taskId, out var task))
+    {
+        Debug.WriteLine("[DownloadManager] Task not found");
+        return;
+    }
+    var higherTasks = _downloads.Values
+        .Where(t => t.QueuePosition < task.QueuePosition)
+        .OrderByDescending(t => t.QueuePosition);
+    var prevTask = higherTasks.FirstOrDefault();
+    if (prevTask == null)
+    {
+        Debug.WriteLine("[DownloadManager] Task already at top");
+        return;
+    }
+    int temp = task.QueuePosition;
+    task.QueuePosition = prevTask.QueuePosition;
+    prevTask.QueuePosition = temp;
+    Debug.WriteLine($"[DownloadManager] Swapped positions of {taskId} and {prevTask.Id}");
+    // TODO: Raise QueuePosition changed notifications if needed
+}
+public void MoveDown(string taskId)
+{
+    Debug.WriteLine($"[DownloadManager] MoveDown called for task {taskId}");
+    if (!_downloads.TryGetValue(taskId, out var task))
+    {
+        Debug.WriteLine("[DownloadManager] Task not found");
+        return;
+    }
+    var lowerTasks = _downloads.Values
+        .Where(t => t.QueuePosition > task.QueuePosition)
+        .OrderBy(t => t.QueuePosition);
+    var nextTask = lowerTasks.FirstOrDefault();
+    if (nextTask == null)
+    {
+        Debug.WriteLine("[DownloadManager] Task already at bottom");
+        return;
+    }
+    int temp = task.QueuePosition;
+    task.QueuePosition = nextTask.QueuePosition;
+    nextTask.QueuePosition = temp;
+    Debug.WriteLine($"[DownloadManager] Swapped positions of {taskId} and {nextTask.Id}");
+    // TODO: Raise QueuePosition changed notifications if needed
+}
+public void CancelAll()
+{
+    Debug.WriteLine("[DownloadManager] CancelAll called");
+    var allTasks = _downloads.Values.ToList();
+    foreach (var task in allTasks)
+    {
+        CancelDownload(task);
+    }
+}
+public void ClearCompleted()
+{
+    Debug.WriteLine("[DownloadManager] ClearCompleted called");
+    var completedTasks = _downloads.Values
+        .Where(t => t.Status == DownloadStatus.Completed)
+        .Select(t => t.Id)
+        .ToList();
+    foreach (var taskId in completedTasks)
+    {
+        RemoveTask(taskId);
+    }
+}
